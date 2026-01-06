@@ -9,80 +9,38 @@ pool:
 variables:
   buildConfiguration: Release
 
-stages:
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: sdk
+    version: 8.x   # change to 6.x if your project is .NET 6
 
-# ================= BUILD STAGE =================
-- stage: Build
-  displayName: Build Stage
-  jobs:
-  - job: BuildJob
-    steps:
-    - task: UseDotNet@2
-      inputs:
-        packageType: sdk
-        version: 8.x
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
 
-    - task: DotNetCoreCLI@2
-      displayName: Restore
-      inputs:
-        command: restore
-        projects: '**/*.csproj'
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
-    - task: DotNetCoreCLI@2
-      displayName: Build
-      inputs:
-        command: build
-        projects: '**/*.csproj'
-        arguments: '--configuration $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  displayName: Publish
+  inputs:
+    command: publish
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
 
-    - task: DotNetCoreCLI@2
-      displayName: Publish
-      inputs:
-        command: publish
-        publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: true
+- task: AzureWebApp@1
+  displayName: Deploy to Azure Web App
+  inputs:
+    azureSubscription: AzureServiceConnection
+    appType: webApp
+    appName: dotnet-core-mvc
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
 
-    - publish: $(Build.ArtifactStagingDirectory)
-      artifact: drop
-
-
-# ================= DEPLOY TO STAGING =================
-- stage: Deploy_Staging
-  displayName: Deploy to Staging
-  dependsOn: Build
-  jobs:
-  - job: DeployStaging
-    steps:
-    - download: current
-      artifact: drop
-
-    - task: AzureWebApp@1
-      displayName: Deploy to STAGING slot
-      inputs:
-        azureSubscription: AzureServiceConnection
-        appType: webApp
-        appName: dotnet-core-mvc
-        slotName: staging          # 👈 IMPORTANT
-        package: '$(Pipeline.Workspace)/drop/**/*.zip'
-
-
-# ================= DEPLOY TO PRODUCTION (APPROVAL) =================
-- stage: Deploy_Production
-  displayName: Deploy to Production
-  dependsOn: Deploy_Staging
-  jobs:
-  - deployment: SwapSlots
-    displayName: Swap Staging to Production
-    environment: production        # ✅ WORKS HERE
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureAppServiceManage@0
-            inputs:
-              azureSubscription: AzureServiceConnection
-              action: Swap Slots
-              webAppName: dotnet-core-mvc
-              sourceSlot: staging
-              targetSlot: production
