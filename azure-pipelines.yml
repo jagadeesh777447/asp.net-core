@@ -70,18 +70,23 @@ stages:
 - stage: Deploy_Production
   displayName: Deploy to Production
   dependsOn: Deploy_Staging
+
   jobs:
   - deployment: SwapSlots
     displayName: Swap Staging to Production
-    environment: production   # 🔐 APPROVAL HAPPENS HERE
+    environment: production   # 🔐 Approval happens here
+
     strategy:
       runOnce:
         deploy:
           steps:
           - task: AzureAppServiceManage@0
+            displayName: Swap Staging to Production
             inputs:
               azureSubscription: AzureServiceConnection
+              resourceGroupName: dotnet-core-mvc_group   # ✅ REQUIRED
               action: Swap Slots
               webAppName: dotnet-core-mvc
               sourceSlot: staging
               targetSlot: production
+
