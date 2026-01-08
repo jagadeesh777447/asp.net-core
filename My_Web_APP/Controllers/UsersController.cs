@@ -5,9 +5,9 @@ using My_Web_APP.Models; // 👈 instead of DBContext namespace
 
 public class UsersController : Controller
 {
-    private readonly CiCdContext _context;
+    private readonly TxsdemoAzuredevContext _context;
 
-    public UsersController(CiCdContext context)
+    public UsersController(TxsdemoAzuredevContext context)
     {
         _context = context;
     }
