@@ -19,7 +19,7 @@ public partial class TxsdemoAzuredevContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=190.92.172.185;Database=txsdemo_azureprod;user id=txsdemo_azureprodusr;password=Ty7#UT?gs!9rcn^mSy7;Trusted_Connection=false;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=190.92.172.185;Database=txsdemo_azuredev;user id=txsdemo_azuredevusr;password=3#FgO4Ee!buVe2$mj;Trusted_Connection=false;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
