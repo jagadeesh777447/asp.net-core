@@ -63,7 +63,7 @@ stages:
         azureSubscription: AzureServiceConnection
         appType: webApp
         appName: dotnet-core-mvc
-        slotName: staging
+        slotName: dev
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
 
 # ================= DEPLOY TO PRODUCTION (APPROVAL) =================
@@ -87,6 +87,6 @@ stages:
               resourceGroupName: dotnet-core-mvc_group   # ✅ REQUIRED
               action: Swap Slots
               webAppName: dotnet-core-mvc
-              sourceSlot: staging
+              sourceSlot: dev
               targetSlot: production
 
